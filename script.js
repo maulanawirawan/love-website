@@ -617,33 +617,21 @@ function createMusicContent() {
         <div class="content-display">
             <h2>🎵 Songs That Remind Me of You</h2>
             <p style="text-align: center; margin-bottom: 30px; color: #7f8c8d;">
-                Click play to listen! 🎧
+                Click to play! 🎧
             </p>
             
-            <!-- Music Player -->
-            <div class="music-player-container">
-                <div class="current-song-display">
-                    <div class="song-icon-large">🎵</div>
-                    <div id="currentSongTitle">Select a song to play</div>
-                    <div id="currentSongArtist"></div>
+            <!-- YouTube Player -->
+            <div class="youtube-player-container">
+                <div id="currentSongInfo" style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: var(--primary-color);">Click a song below to play</h3>
                 </div>
-                
-                <audio id="musicPlayer" style="width: 100%; margin: 20px 0;"></audio>
-                
-                <div class="music-controls">
-                    <button class="control-btn" onclick="prevSong()">⏮️</button>
-                    <button class="control-btn large" id="playPauseBtn" onclick="togglePlayPause()">▶️</button>
-                    <button class="control-btn" onclick="nextSong()">⏭️</button>
-                </div>
-                
-                <div class="volume-control">
-                    <span>🔊</span>
-                    <input type="range" id="volumeSlider" min="0" max="100" value="70" onchange="changeVolume(this.value)">
+                <div id="youtubePlayerWrapper" style="display: none;">
+                    <iframe id="youtubePlayer" width="100%" height="315" style="border-radius: 15px; border: none;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
             
             <div class="music-list" style="margin-top: 40px;">
-                <div class="music-item" onclick="playSong(0, 'Perfect - Ed Sheeran', 'Because you\\'re perfect to me', 'https://www.bensound.com/bensound-music/bensound-romantic.mp3')">
+                <div class="music-item" onclick="playYouTubeSong('dQw4w9WgXcQ', 'Perfect - Ed Sheeran', 'Because you\\'re perfect to me')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>Perfect - Ed Sheeran</h4>
@@ -651,7 +639,7 @@ function createMusicContent() {
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playSong(1, 'All of Me - John Legend', 'I give you all of me', 'https://www.bensound.com/bensound-music/bensound-love.mp3')">
+                <div class="music-item" onclick="playYouTubeSong('450p7goxZqg', 'All of Me - John Legend', 'I give you all of me')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>All of Me - John Legend</h4>
@@ -659,7 +647,7 @@ function createMusicContent() {
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playSong(2, 'Thinking Out Loud - Ed Sheeran', 'Our first dance song', 'https://www.bensound.com/bensound-music/bensound-sweet.mp3')">
+                <div class="music-item" onclick="playYouTubeSong('lp-EO5I60KA', 'Thinking Out Loud - Ed Sheeran', 'Our first dance song')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>Thinking Out Loud - Ed Sheeran</h4>
@@ -667,7 +655,7 @@ function createMusicContent() {
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playSong(3, 'Make You Feel My Love - Adele', 'I\\'d do anything for you', 'https://www.bensound.com/bensound-music/bensound-dreams.mp3')">
+                <div class="music-item" onclick="playYouTubeSong('0put0_a--Ng', 'Make You Feel My Love - Adele', 'I\\'d do anything for you')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>Make You Feel My Love - Adele</h4>
@@ -675,7 +663,7 @@ function createMusicContent() {
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playSong(4, 'A Thousand Years - Christina Perri', 'I\\'ll love you for a thousand more', 'https://www.bensound.com/bensound-music/bensound-memories.mp3')">
+                <div class="music-item" onclick="playYouTubeSong('rtOvBOTyX00', 'A Thousand Years - Christina Perri', 'I\\'ll love you for a thousand more')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>A Thousand Years - Christina Perri</h4>
@@ -685,85 +673,50 @@ function createMusicContent() {
                 </div>
             </div>
             
-            <p style="text-align: center; margin-top: 30px; font-size: 0.9rem; color: #7f8c8d; font-style: italic;">
-                Note: Using sample music. Replace URLs with your favorite songs!
-            </p>
+            <div style="margin-top: 40px; padding: 20px; background: #fff3cd; border-radius: 15px; border-left: 4px solid #ffc107;">
+                <h4 style="color: #856404; margin-bottom: 10px;">🎵 How to Add Your Own Songs:</h4>
+                <ol style="color: #856404; line-height: 1.8;">
+                    <li>Buka YouTube, cari lagu favorit kamu</li>
+                    <li>Copy URL-nya (contoh: https://www.youtube.com/watch?v=<strong>VIDEO_ID</strong>)</li>
+                    <li>Edit script.js, ganti VIDEO_ID di function playYouTubeSong</li>
+                    <li>Done! Lagu kamu siap diplay!</li>
+                </ol>
+            </div>
         </div>
     `;
 }
 
-// Music Player Functions
-let currentSongIndex = 0;
-const playlist = [
-    { title: 'Perfect - Ed Sheeran', description: 'Because you\'re perfect to me', url: 'https://www.bensound.com/bensound-music/bensound-romantic.mp3' },
-    { title: 'All of Me - John Legend', description: 'I give you all of me', url: 'https://www.bensound.com/bensound-music/bensound-love.mp3' },
-    { title: 'Thinking Out Loud - Ed Sheeran', description: 'Our first dance song', url: 'https://www.bensound.com/bensound-music/bensound-sweet.mp3' },
-    { title: 'Make You Feel My Love - Adele', description: 'I\'d do anything for you', url: 'https://www.bensound.com/bensound-music/bensound-dreams.mp3' },
-    { title: 'A Thousand Years - Christina Perri', description: 'I\'ll love you for a thousand more', url: 'https://www.bensound.com/bensound-music/bensound-memories.mp3' }
-];
-
-function playSong(index, title, description, url) {
-    currentSongIndex = index;
-    const player = document.getElementById('musicPlayer');
-    const playPauseBtn = document.getElementById('playPauseBtn');
+// YouTube Music Player
+function playYouTubeSong(videoId, title, description) {
+    const player = document.getElementById('youtubePlayer');
+    const wrapper = document.getElementById('youtubePlayerWrapper');
+    const info = document.getElementById('currentSongInfo');
     
-    if (!player) return;
+    // Show player
+    wrapper.style.display = 'block';
     
-    player.src = url;
-    player.play();
-    playPauseBtn.textContent = '⏸️';
+    // Update iframe with autoplay
+    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
     
-    document.getElementById('currentSongTitle').textContent = title;
-    document.getElementById('currentSongArtist').textContent = description;
+    // Update song info
+    info.innerHTML = `
+        <div style="font-size: 2rem; margin-bottom: 10px;">🎵</div>
+        <h3 style="color: var(--primary-color); margin-bottom: 5px;">${title}</h3>
+        <p style="color: #7f8c8d;">${description}</p>
+    `;
     
     // Highlight active song
-    document.querySelectorAll('.music-item').forEach((item, i) => {
-        if (i === index) {
-            item.style.background = 'var(--accent-color)';
-            item.style.borderLeft = '4px solid var(--primary-color)';
-        } else {
-            item.style.background = '#f8f9fa';
-            item.style.borderLeft = 'none';
-        }
+    document.querySelectorAll('.music-item').forEach((item) => {
+        item.style.background = '#f8f9fa';
+        item.style.borderLeft = 'none';
     });
-}
-
-function togglePlayPause() {
-    const player = document.getElementById('musicPlayer');
-    const playPauseBtn = document.getElementById('playPauseBtn');
     
-    if (!player || !player.src) {
-        // Play first song if none selected
-        playSong(0, playlist[0].title, playlist[0].description, playlist[0].url);
-        return;
-    }
+    // Highlight clicked song
+    event.currentTarget.style.background = 'var(--accent-color)';
+    event.currentTarget.style.borderLeft = '4px solid var(--primary-color)';
     
-    if (player.paused) {
-        player.play();
-        playPauseBtn.textContent = '⏸️';
-    } else {
-        player.pause();
-        playPauseBtn.textContent = '▶️';
-    }
-}
-
-function nextSong() {
-    currentSongIndex = (currentSongIndex + 1) % playlist.length;
-    const song = playlist[currentSongIndex];
-    playSong(currentSongIndex, song.title, song.description, song.url);
-}
-
-function prevSong() {
-    currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
-    const song = playlist[currentSongIndex];
-    playSong(currentSongIndex, song.title, song.description, song.url);
-}
-
-function changeVolume(value) {
-    const player = document.getElementById('musicPlayer');
-    if (player) {
-        player.volume = value / 100;
-    }
+    // Scroll to player
+    wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function createGalleryContent() {

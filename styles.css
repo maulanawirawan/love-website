@@ -965,6 +965,26 @@ body {
 }
 
 /* Music Player Styles */
+.youtube-player-container {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+#youtubePlayerWrapper {
+    margin-top: 20px;
+}
+
+#youtubePlayer {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+}
+
 .music-player-container {
     background: white;
     padding: 30px;
