@@ -15,6 +15,19 @@ function initializeApp() {
     createFloatingHearts();
     setupEventListeners();
     loadSavedProgress();
+    checkAutoLogin();
+}
+
+// Check if user already logged in
+function checkAutoLogin() {
+    const isLoggedIn = localStorage.getItem('loveWebsiteLoggedIn');
+    if (isLoggedIn === 'true') {
+        // Skip password and welcome screen
+        document.getElementById('passwordScreen').classList.remove('active');
+        document.getElementById('mainContent').classList.add('active');
+        state.currentScreen = 'main';
+        updateCardStates();
+    }
 }
 
 // Create Floating Hearts Animation
@@ -106,6 +119,7 @@ function checkPassword() {
     
     if (input.value.toLowerCase() === state.password.toLowerCase()) {
         errorMsg.textContent = '';
+        localStorage.setItem('loveWebsiteLoggedIn', 'true');
         showWelcomeScreen();
     } else {
         errorMsg.textContent = '❌ Oops! Try again, sweetheart 💕';
@@ -213,6 +227,29 @@ function updateCardStates() {
             status.innerHTML = '<i class="fas fa-unlock"></i> Unlocked!';
         }
     });
+    
+    updateProgressIndicator();
+}
+
+function updateProgressIndicator() {
+    const total = 6;
+    const unlocked = state.unlockedContent.length;
+    const percentage = (unlocked / total) * 100;
+    
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    
+    if (progressFill) {
+        progressFill.style.width = percentage + '%';
+    }
+    
+    if (progressText) {
+        progressText.textContent = `${unlocked} / ${total} Contents Unlocked`;
+        
+        if (unlocked === total) {
+            progressText.innerHTML = `🎉 All Contents Unlocked! You're Amazing! 💕`;
+        }
+    }
 }
 
 // Quiz System
@@ -284,8 +321,18 @@ function generateCrosswordGrid() {
 
 function checkCrossword() {
     // Simplified check - in real version, check actual answers
-    unlockRandomContent();
-    showSuccessMessage('🎉 Amazing! You unlocked new content!');
+    const content = document.getElementById('quizContent');
+    content.innerHTML = `
+        <div style="text-align: center;">
+            <div style="font-size: 4rem; margin: 20px 0;">🎉</div>
+            <h3 style="font-size: 2rem; margin-bottom: 15px;">Great Job!</h3>
+            <div class="success-message">
+                ✨ Choose which content to unlock! ✨
+            </div>
+            <div id="unlockChoices"></div>
+        </div>
+    `;
+    showUnlockChoices();
 }
 
 // Trivia Quiz
@@ -406,13 +453,13 @@ function showTriviaResults() {
             </p>
             <p style="font-size: 1.1rem; margin-bottom: 30px;">${message}</p>
             <div class="success-message">
-                ✨ You've unlocked new content! ✨
+                ✨ Choose which content to unlock! ✨
             </div>
-            <button class="btn-primary" onclick="closeModal()">Close</button>
+            <div id="unlockChoices"></div>
         </div>
     `;
     
-    unlockRandomContent();
+    showUnlockChoices();
 }
 
 // Memory Game
@@ -487,11 +534,11 @@ function checkMatch() {
             setTimeout(() => {
                 document.getElementById('memoryStatus').innerHTML = `
                     <div class="success-message">
-                        🎉 Congratulations! You've unlocked new content!
+                        🎉 Congratulations! Choose which content to unlock!
                     </div>
-                    <button class="btn-primary" onclick="closeModal()" style="margin-top: 20px;">Close</button>
+                    <div id="unlockChoices" style="margin-top: 20px;"></div>
                 `;
-                unlockRandomContent();
+                showUnlockChoices();
             }, 500);
         }
     } else {
@@ -569,45 +616,154 @@ function createMusicContent() {
     return `
         <div class="content-display">
             <h2>🎵 Songs That Remind Me of You</h2>
-            <div class="music-list">
-                <div class="music-item">
+            <p style="text-align: center; margin-bottom: 30px; color: #7f8c8d;">
+                Click play to listen! 🎧
+            </p>
+            
+            <!-- Music Player -->
+            <div class="music-player-container">
+                <div class="current-song-display">
+                    <div class="song-icon-large">🎵</div>
+                    <div id="currentSongTitle">Select a song to play</div>
+                    <div id="currentSongArtist"></div>
+                </div>
+                
+                <audio id="musicPlayer" style="width: 100%; margin: 20px 0;"></audio>
+                
+                <div class="music-controls">
+                    <button class="control-btn" onclick="prevSong()">⏮️</button>
+                    <button class="control-btn large" id="playPauseBtn" onclick="togglePlayPause()">▶️</button>
+                    <button class="control-btn" onclick="nextSong()">⏭️</button>
+                </div>
+                
+                <div class="volume-control">
+                    <span>🔊</span>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="70" onchange="changeVolume(this.value)">
+                </div>
+            </div>
+            
+            <div class="music-list" style="margin-top: 40px;">
+                <div class="music-item" onclick="playSong(0, 'Perfect - Ed Sheeran', 'Because you\\'re perfect to me', 'https://www.bensound.com/bensound-music/bensound-romantic.mp3')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>Perfect - Ed Sheeran</h4>
                         <p>Because you're perfect to me</p>
                     </div>
+                    <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item">
+                <div class="music-item" onclick="playSong(1, 'All of Me - John Legend', 'I give you all of me', 'https://www.bensound.com/bensound-music/bensound-love.mp3')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>All of Me - John Legend</h4>
                         <p>I give you all of me</p>
                     </div>
+                    <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item">
+                <div class="music-item" onclick="playSong(2, 'Thinking Out Loud - Ed Sheeran', 'Our first dance song', 'https://www.bensound.com/bensound-music/bensound-sweet.mp3')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>Thinking Out Loud - Ed Sheeran</h4>
                         <p>Our first dance song</p>
                     </div>
+                    <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item">
+                <div class="music-item" onclick="playSong(3, 'Make You Feel My Love - Adele', 'I\\'d do anything for you', 'https://www.bensound.com/bensound-music/bensound-dreams.mp3')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>Make You Feel My Love - Adele</h4>
                         <p>I'd do anything for you</p>
                     </div>
+                    <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item">
+                <div class="music-item" onclick="playSong(4, 'A Thousand Years - Christina Perri', 'I\\'ll love you for a thousand more', 'https://www.bensound.com/bensound-music/bensound-memories.mp3')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
                         <h4>A Thousand Years - Christina Perri</h4>
                         <p>I'll love you for a thousand more</p>
                     </div>
+                    <div class="play-icon">▶️</div>
                 </div>
             </div>
+            
+            <p style="text-align: center; margin-top: 30px; font-size: 0.9rem; color: #7f8c8d; font-style: italic;">
+                Note: Using sample music. Replace URLs with your favorite songs!
+            </p>
         </div>
     `;
+}
+
+// Music Player Functions
+let currentSongIndex = 0;
+const playlist = [
+    { title: 'Perfect - Ed Sheeran', description: 'Because you\'re perfect to me', url: 'https://www.bensound.com/bensound-music/bensound-romantic.mp3' },
+    { title: 'All of Me - John Legend', description: 'I give you all of me', url: 'https://www.bensound.com/bensound-music/bensound-love.mp3' },
+    { title: 'Thinking Out Loud - Ed Sheeran', description: 'Our first dance song', url: 'https://www.bensound.com/bensound-music/bensound-sweet.mp3' },
+    { title: 'Make You Feel My Love - Adele', description: 'I\'d do anything for you', url: 'https://www.bensound.com/bensound-music/bensound-dreams.mp3' },
+    { title: 'A Thousand Years - Christina Perri', description: 'I\'ll love you for a thousand more', url: 'https://www.bensound.com/bensound-music/bensound-memories.mp3' }
+];
+
+function playSong(index, title, description, url) {
+    currentSongIndex = index;
+    const player = document.getElementById('musicPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    
+    if (!player) return;
+    
+    player.src = url;
+    player.play();
+    playPauseBtn.textContent = '⏸️';
+    
+    document.getElementById('currentSongTitle').textContent = title;
+    document.getElementById('currentSongArtist').textContent = description;
+    
+    // Highlight active song
+    document.querySelectorAll('.music-item').forEach((item, i) => {
+        if (i === index) {
+            item.style.background = 'var(--accent-color)';
+            item.style.borderLeft = '4px solid var(--primary-color)';
+        } else {
+            item.style.background = '#f8f9fa';
+            item.style.borderLeft = 'none';
+        }
+    });
+}
+
+function togglePlayPause() {
+    const player = document.getElementById('musicPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    
+    if (!player || !player.src) {
+        // Play first song if none selected
+        playSong(0, playlist[0].title, playlist[0].description, playlist[0].url);
+        return;
+    }
+    
+    if (player.paused) {
+        player.play();
+        playPauseBtn.textContent = '⏸️';
+    } else {
+        player.pause();
+        playPauseBtn.textContent = '▶️';
+    }
+}
+
+function nextSong() {
+    currentSongIndex = (currentSongIndex + 1) % playlist.length;
+    const song = playlist[currentSongIndex];
+    playSong(currentSongIndex, song.title, song.description, song.url);
+}
+
+function prevSong() {
+    currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+    const song = playlist[currentSongIndex];
+    playSong(currentSongIndex, song.title, song.description, song.url);
+}
+
+function changeVolume(value) {
+    const player = document.getElementById('musicPlayer');
+    if (player) {
+        player.volume = value / 100;
+    }
 }
 
 function createGalleryContent() {
@@ -702,10 +858,16 @@ function createCouponsContent() {
 }
 
 function createBirthdayContent() {
+    setTimeout(() => {
+        createFallingPetals();
+    }, 100);
+    
     return `
         <div class="content-display birthday-content">
             <h1>🎂 Happy Birthday, Love! 💕</h1>
-            <div class="birthday-flower">🌹</div>
+            <div class="birthday-flower-container" style="position: relative;">
+                <div class="birthday-flower">🌹</div>
+            </div>
             <div class="birthday-message">
                 <p>Happy Birthday to the most amazing person in my life! 🎉</p>
                 <br>
@@ -721,7 +883,103 @@ function createBirthdayContent() {
     `;
 }
 
+// Falling Petals Animation
+function createFallingPetals() {
+    const container = document.querySelector('.birthday-flower-container');
+    if (!container) return;
+    
+    const petals = ['🌸', '🌺', '🌼', '🌻', '🌷', '💮'];
+    
+    setInterval(() => {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        petal.textContent = petals[Math.floor(Math.random() * petals.length)];
+        petal.style.left = (Math.random() * 100) + '%';
+        petal.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        petal.style.animationDelay = Math.random() + 's';
+        
+        container.appendChild(petal);
+        
+        setTimeout(() => {
+            petal.remove();
+        }, 6000);
+    }, 500);
+}
+
 // Helper Functions
+function showUnlockChoices() {
+    const allContent = ['letter', 'music', 'gallery', 'notes', 'coupons', 'birthday'];
+    const locked = allContent.filter(c => !state.unlockedContent.includes(c));
+    
+    if (locked.length === 0) {
+        document.getElementById('unlockChoices').innerHTML = `
+            <p style="margin: 20px 0; color: #7f8c8d;">All content already unlocked! 🎉</p>
+            <button class="btn-primary" onclick="closeModal()">Close</button>
+        `;
+        return;
+    }
+    
+    const contentNames = {
+        letter: '💌 Love Letter',
+        music: '🎵 Music Playlist',
+        gallery: '📸 Gallery',
+        notes: '📝 Sweet Notes',
+        coupons: '🎫 Love Coupons',
+        birthday: '🎂 Birthday Wish'
+    };
+    
+    const choicesHTML = locked.map(content => `
+        <button class="unlock-choice-btn" onclick="selectUnlock('${content}')">
+            ${contentNames[content]}
+        </button>
+    `).join('');
+    
+    document.getElementById('unlockChoices').innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 30px;">
+            ${choicesHTML}
+        </div>
+    `;
+}
+
+function selectUnlock(contentType) {
+    unlockContent(contentType);
+    
+    // Create confetti effect
+    createConfetti();
+    
+    document.getElementById('unlockChoices').innerHTML = `
+        <div class="success-message sparkle" style="margin-top: 20px;">
+            ✨🎉 Content unlocked successfully! 🎉✨
+        </div>
+        <button class="btn-primary" onclick="closeModal()" style="margin-top: 20px;">Close</button>
+    `;
+    
+    // Auto update UI
+    setTimeout(() => {
+        closeModal();
+    }, 2000);
+}
+
+function createConfetti() {
+    const colors = ['#ff6b9d', '#c44569', '#ffc6d9', '#ff9ff3', '#feca57', '#48dbfb'];
+    const confettiCount = 50;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.animationDuration = Math.random() * 2 + 2 + 's';
+        
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => {
+            confetti.remove();
+        }, 4000);
+    }
+}
+
 function unlockRandomContent() {
     const allContent = ['letter', 'music', 'gallery', 'notes', 'coupons', 'birthday'];
     const locked = allContent.filter(c => !state.unlockedContent.includes(c));
@@ -759,6 +1017,13 @@ function loadSavedProgress() {
     if (saved) {
         state.unlockedContent = JSON.parse(saved);
         updateCardStates();
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout? 💔')) {
+        localStorage.removeItem('loveWebsiteLoggedIn');
+        location.reload();
     }
 }
 

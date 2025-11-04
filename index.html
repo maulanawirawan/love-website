@@ -54,6 +54,7 @@
             <div class="nav-menu">
                 <a href="#home" class="nav-link active">Home</a>
                 <a href="#activities" class="nav-link">Activities</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </nav>
 
@@ -63,6 +64,12 @@
                 <div class="hero">
                     <h1 class="hero-title animate-fade-in">Welcome to Our Love Journey 💝</h1>
                     <p class="hero-subtitle animate-fade-in-delay">Explore the memories, letters, and surprises I've prepared for you</p>
+                    <div class="progress-indicator">
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <p id="progressText" class="progress-text">0 / 6 Contents Unlocked</p>
+                    </div>
                 </div>
 
                 <div class="cards-grid">
