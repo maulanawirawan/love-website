@@ -620,83 +620,111 @@ function createMusicContent() {
                 Click to play! 🎧
             </p>
             
-            <!-- YouTube Player -->
-            <div class="youtube-player-container">
+            <!-- Spotify Player -->
+            <div class="spotify-player-container">
                 <div id="currentSongInfo" style="text-align: center; margin-bottom: 20px;">
-                    <h3 style="color: var(--primary-color);">Click a song below to play</h3>
+                    <h3 style="color: var(--primary-color);">🎵 Select a song below</h3>
                 </div>
-                <div id="youtubePlayerWrapper" style="display: none;">
-                    <iframe id="youtubePlayer" width="100%" height="315" style="border-radius: 15px; border: none;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div id="spotifyPlayerWrapper" style="display: none;">
+                    <iframe id="spotifyPlayer" 
+                            style="border-radius:12px" 
+                            src="" 
+                            width="100%" 
+                            height="352" 
+                            frameBorder="0" 
+                            allowfullscreen="" 
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                            loading="lazy">
+                    </iframe>
                 </div>
             </div>
             
             <div class="music-list" style="margin-top: 40px;">
-                <div class="music-item" onclick="playYouTubeSong('dQw4w9WgXcQ', 'Perfect - Ed Sheeran', 'Because you\\'re perfect to me')">
+                <div class="music-item" onclick="playSpotifySong('0yDghAfS3CT7Di30WoJE7h', 'Song 1', 'First song for you')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
-                        <h4>Perfect - Ed Sheeran</h4>
-                        <p>Because you're perfect to me</p>
+                        <h4>Song 1</h4>
+                        <p>First song for you</p>
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playYouTubeSong('450p7goxZqg', 'All of Me - John Legend', 'I give you all of me')">
+                
+                <div class="music-item" onclick="playSpotifySong('3NLnwwAQbbFKcEcV8hDItk', 'Song 2', 'Our favorite')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
-                        <h4>All of Me - John Legend</h4>
-                        <p>I give you all of me</p>
+                        <h4>Song 2</h4>
+                        <p>Our favorite song</p>
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playYouTubeSong('lp-EO5I60KA', 'Thinking Out Loud - Ed Sheeran', 'Our first dance song')">
+                
+                <div class="music-item" onclick="playSpotifySong('3Puhw21QI2MKR4rdvyPuIb', 'Song 3', 'Reminds me of you')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
-                        <h4>Thinking Out Loud - Ed Sheeran</h4>
-                        <p>Our first dance song</p>
+                        <h4>Song 3</h4>
+                        <p>Always reminds me of you</p>
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playYouTubeSong('0put0_a--Ng', 'Make You Feel My Love - Adele', 'I\\'d do anything for you')">
+                
+                <div class="music-item" onclick="playSpotifySong('3U4isOIWM3VvDubwSI3y7a', 'Song 4', 'Our anthem')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
-                        <h4>Make You Feel My Love - Adele</h4>
-                        <p>I'd do anything for you</p>
+                        <h4>Song 4</h4>
+                        <p>Our love anthem</p>
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
-                <div class="music-item" onclick="playYouTubeSong('rtOvBOTyX00', 'A Thousand Years - Christina Perri', 'I\\'ll love you for a thousand more')">
+                
+                <div class="music-item" onclick="playSpotifySong('34gCuhDGsG4bRPIf9bb02f', 'Song 5', 'Sweet memories')">
                     <div class="music-icon">🎵</div>
                     <div class="music-info">
-                        <h4>A Thousand Years - Christina Perri</h4>
-                        <p>I'll love you for a thousand more</p>
+                        <h4>Song 5</h4>
+                        <p>Sweet memories together</p>
+                    </div>
+                    <div class="play-icon">▶️</div>
+                </div>
+                
+                <div class="music-item" onclick="playSpotifySong('273QnyCvJB65rScHJ1nPZb', 'Song 6', 'Special moment')">
+                    <div class="music-icon">🎵</div>
+                    <div class="music-info">
+                        <h4>Song 6</h4>
+                        <p>Our special moment</p>
+                    </div>
+                    <div class="play-icon">▶️</div>
+                </div>
+                
+                <div class="music-item" onclick="playSpotifySong('6lanRgr6wXibZr8KgzXxBl', 'Song 7', 'Forever song')">
+                    <div class="music-icon">🎵</div>
+                    <div class="music-info">
+                        <h4>Song 7</h4>
+                        <p>Our forever song</p>
                     </div>
                     <div class="play-icon">▶️</div>
                 </div>
             </div>
             
-            <div style="margin-top: 40px; padding: 20px; background: #fff3cd; border-radius: 15px; border-left: 4px solid #ffc107;">
-                <h4 style="color: #856404; margin-bottom: 10px;">🎵 How to Add Your Own Songs:</h4>
-                <ol style="color: #856404; line-height: 1.8;">
-                    <li>Buka YouTube, cari lagu favorit kamu</li>
-                    <li>Copy URL-nya (contoh: https://www.youtube.com/watch?v=<strong>VIDEO_ID</strong>)</li>
-                    <li>Edit script.js, ganti VIDEO_ID di function playYouTubeSong</li>
-                    <li>Done! Lagu kamu siap diplay!</li>
-                </ol>
+            <div style="margin-top: 40px; padding: 20px; background: #1DB954; color: white; border-radius: 15px; text-align: center;">
+                <h4 style="margin-bottom: 10px;">🎵 Powered by Spotify</h4>
+                <p style="font-size: 0.9rem; opacity: 0.9;">
+                    Click any song above to play. Enjoy! 💕
+                </p>
             </div>
         </div>
     `;
 }
 
-// YouTube Music Player
-function playYouTubeSong(videoId, title, description) {
-    const player = document.getElementById('youtubePlayer');
-    const wrapper = document.getElementById('youtubePlayerWrapper');
+// Spotify Music Player
+function playSpotifySong(trackId, title, description) {
+    const player = document.getElementById('spotifyPlayer');
+    const wrapper = document.getElementById('spotifyPlayerWrapper');
     const info = document.getElementById('currentSongInfo');
     
     // Show player
     wrapper.style.display = 'block';
     
-    // Update iframe with autoplay
-    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    // Update iframe with Spotify embed
+    player.src = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator`;
     
     // Update song info
     info.innerHTML = `
@@ -712,10 +740,10 @@ function playYouTubeSong(videoId, title, description) {
     });
     
     // Highlight clicked song
-    event.currentTarget.style.background = 'var(--accent-color)';
-    event.currentTarget.style.borderLeft = '4px solid var(--primary-color)';
+    event.currentTarget.style.background = '#e8f5e9';
+    event.currentTarget.style.borderLeft = '4px solid #1DB954';
     
-    // Scroll to player
+    // Scroll to player smoothly
     wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 

@@ -965,6 +965,25 @@ body {
 }
 
 /* Music Player Styles */
+.spotify-player-container {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+#spotifyPlayerWrapper {
+    margin-top: 20px;
+}
+
+#spotifyPlayer {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
 .youtube-player-container {
     background: white;
     padding: 30px;
