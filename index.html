@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Love 💕</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Floating Hearts Background -->
+    <div id="hearts-container"></div>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music Control Button -->
+    <button id="musicToggle" class="music-btn">
+        <i class="fas fa-music"></i>
+    </button>
+
+    <!-- Password Screen -->
+    <div id="passwordScreen" class="screen active">
+        <div class="password-container">
+            <div class="lock-icon">🔒</div>
+            <h1 class="gradient-text">Hey Pretty, What's The Magic Word? 💖</h1>
+            <p class="subtitle">Enter the password to unlock my heart</p>
+            <input type="password" id="passwordInput" placeholder="Enter password..." maxlength="20">
+            <button id="enterBtn" class="btn-primary">Enter</button>
+            <div id="passwordError" class="error-message"></div>
+            <div class="hint">Hint: Our special word 💕</div>
+        </div>
+    </div>
+
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="screen">
+        <div class="welcome-container">
+            <div class="welcome-card">
+                <h1 class="gradient-text">Hello My Love! 💕</h1>
+                <p class="welcome-message">I hope you enjoy your stay 😊</p>
+                <p class="made-with-love">Made with all my love 💖</p>
+                <button id="startExploring" class="btn-primary">Start Exploring</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="screen">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">💕 Our Love Story</div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#activities" class="nav-link">Activities</a>
+            </div>
+        </nav>
+
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="container">
+                <div class="hero">
+                    <h1 class="hero-title animate-fade-in">Welcome to Our Love Journey 💝</h1>
+                    <p class="hero-subtitle animate-fade-in-delay">Explore the memories, letters, and surprises I've prepared for you</p>
+                </div>
+
+                <div class="cards-grid">
+                    <!-- Letter Card -->
+                    <div class="feature-card" data-content="letter">
+                        <div class="card-icon">💌</div>
+                        <h3>Love Letter</h3>
+                        <p>Read my heartfelt words</p>
+                        <div class="card-status locked">
+                            <i class="fas fa-lock"></i> Unlock with quiz
+                        </div>
+                    </div>
+
+                    <!-- Music Card -->
+                    <div class="feature-card" data-content="music">
+                        <div class="card-icon">🎵</div>
+                        <h3>Our Playlist</h3>
+                        <p>Songs that remind me of you</p>
+                        <div class="card-status locked">
+                            <i class="fas fa-lock"></i> Unlock with quiz
+                        </div>
+                    </div>
+
+                    <!-- Gallery Card -->
+                    <div class="feature-card" data-content="gallery">
+                        <div class="card-icon">📸</div>
+                        <h3>Memories</h3>
+                        <p>Our beautiful moments</p>
+                        <div class="card-status locked">
+                            <i class="fas fa-lock"></i> Unlock with quiz
+                        </div>
+                    </div>
+
+                    <!-- Notes Card -->
+                    <div class="feature-card" data-content="notes">
+                        <div class="card-icon">📝</div>
+                        <h3>Sweet Notes</h3>
+                        <p>Little things I love about you</p>
+                        <div class="card-status locked">
+                            <i class="fas fa-lock"></i> Unlock with quiz
+                        </div>
+                    </div>
+
+                    <!-- Coupons Card -->
+                    <div class="feature-card" data-content="coupons">
+                        <div class="card-icon">🎫</div>
+                        <h3>Love Coupons</h3>
+                        <p>Special activities for us</p>
+                        <div class="card-status locked">
+                            <i class="fas fa-lock"></i> Unlock with quiz
+                        </div>
+                    </div>
+
+                    <!-- Birthday Card -->
+                    <div class="feature-card" data-content="birthday">
+                        <div class="card-icon">🎂</div>
+                        <h3>Birthday Wish</h3>
+                        <p>A special message for you</p>
+                        <div class="card-status locked">
+                            <i class="fas fa-lock"></i> Unlock with quiz
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activities Section -->
+        <section id="activities" class="section">
+            <div class="container">
+                <h2 class="section-title">🎮 Fun Activities</h2>
+                <p class="section-subtitle">Complete these to unlock special content!</p>
+                
+                <div class="activities-grid">
+                    <div class="activity-card" data-quiz="crossword">
+                        <div class="activity-icon">🎯</div>
+                        <h3>Crossword Puzzle</h3>
+                        <p>Test your knowledge about us!</p>
+                        <button class="btn-secondary">Start Game</button>
+                    </div>
+
+                    <div class="activity-card" data-quiz="trivia">
+                        <div class="activity-icon">❓</div>
+                        <h3>Love Trivia</h3>
+                        <p>Answer questions about our story</p>
+                        <button class="btn-secondary">Start Quiz</button>
+                    </div>
+
+                    <div class="activity-card" data-quiz="memory">
+                        <div class="activity-icon">🎴</div>
+                        <h3>Memory Game</h3>
+                        <p>Match the cards!</p>
+                        <button class="btn-secondary">Play Game</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quizModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="quizContent"></div>
+        </div>
+    </div>
+
+    <!-- Content Modal -->
+    <div id="contentModal" class="modal">
+        <div class="modal-content large">
+            <span class="close-modal">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
