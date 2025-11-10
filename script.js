@@ -391,6 +391,127 @@ function decodeCipher() {
     }
 }
 
+// =====================================================
+// GAME 4: WORD SCRAMBLE
+// =====================================================
+function startWordScramble() {
+    const words = [
+        { word: 'FOREVER', scrambled: 'VERRFEO', hint: 'Our promise to each other' },
+        { word: 'KISS', scrambled: 'SKIS', hint: 'Sweet gesture of love' },
+        { word: 'ROMANCE', scrambled: 'CAROMNE', hint: 'What we have together' },
+        { word: 'SWEETHEART', scrambled: 'THRAEETEWS', hint: 'What you are to me' },
+        { word: 'VALENTINE', scrambled: 'TNLVAEINE', hint: 'Love celebration day' }
+    ];
+    
+    let currentWordIndex = 0;
+    let score = 0;
+    
+    const scrambleHTML = `
+        <div class="word-scramble-container">
+            <h2 class="quiz-title">🔤 Unscramble Love Words!</h2>
+            <div id="scrambleScore" style="text-align: center; font-size: 1.2rem; color: var(--primary-color); margin-bottom: 20px;">
+                Score: <span id="scoreNumber">0</span> / ${words.length}
+            </div>
+            
+            <div id="scrambleContent"></div>
+        </div>
+    `;
+    
+    document.getElementById('quizContent').innerHTML = scrambleHTML;
+    document.getElementById('quizModal').classList.add('active');
+    
+    function showWord() {
+        const word = words[currentWordIndex];
+        document.getElementById('scrambleContent').innerHTML = `
+            <div style="text-align: center;">
+                <p style="font-size: 1.1rem; color: #7f8c8d; margin-bottom: 15px;">
+                    Word ${currentWordIndex + 1} of ${words.length}
+                </p>
+                
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 20px; margin: 20px 0;">
+                    <p style="font-size: 2.5rem; font-weight: bold; color: var(--primary-color); letter-spacing: 8px; margin-bottom: 15px;">
+                        ${word.scrambled}
+                    </p>
+                    <p style="font-style: italic; color: #7f8c8d;">
+                        💡 Hint: ${word.hint}
+                    </p>
+                </div>
+                
+                <input 
+                    type="text" 
+                    id="scrambleAnswer" 
+                    placeholder="Type your answer..." 
+                    style="width: 100%; max-width: 300px; padding: 15px; border: 3px solid var(--accent-color); border-radius: 15px; font-size: 1.2rem; text-align: center; text-transform: uppercase; margin: 20px 0;"
+                    maxlength="${word.word.length}"
+                >
+                
+                <button onclick="checkScrambleAnswer()" class="btn-primary" style="margin-top: 20px;">
+                    Submit Answer
+                </button>
+                
+                <div id="scrambleFeedback" style="margin-top: 20px; min-height: 30px;"></div>
+            </div>
+        `;
+        
+        // Enter key support
+        document.getElementById('scrambleAnswer').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkScrambleAnswer();
+        });
+        
+        document.getElementById('scrambleAnswer').focus();
+    }
+    
+    window.checkScrambleAnswer = function() {
+        const answer = document.getElementById('scrambleAnswer').value.toUpperCase();
+        const correct = words[currentWordIndex].word;
+        const feedback = document.getElementById('scrambleFeedback');
+        
+        if (answer === correct) {
+            score++;
+            document.getElementById('scoreNumber').textContent = score;
+            feedback.innerHTML = '<p style="color: #27ae60; font-size: 1.2rem; font-weight: bold;">✅ Correct!</p>';
+            
+            createConfetti();
+            
+            setTimeout(() => {
+                currentWordIndex++;
+                if (currentWordIndex < words.length) {
+                    showWord();
+                } else {
+                    showScrambleResults();
+                }
+            }, 1500);
+        } else {
+            feedback.innerHTML = '<p style="color: #e74c3c; font-size: 1.1rem;">❌ Try again!</p>';
+            document.getElementById('scrambleAnswer').value = '';
+            document.getElementById('scrambleAnswer').style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                document.getElementById('scrambleAnswer').style.animation = '';
+                feedback.innerHTML = '';
+            }, 1000);
+        }
+    };
+    
+    function showScrambleResults() {
+        document.getElementById('scrambleContent').innerHTML = `
+            <div style="text-align: center;">
+                <div style="font-size: 5rem; margin: 20px 0;">🎉</div>
+                <h3 style="font-size: 2rem; margin-bottom: 15px;">Game Complete!</h3>
+                <p style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 30px;">
+                    You scored ${score} / ${words.length}
+                </p>
+                <div class="success-message">
+                    ✨ Choose which content to unlock! ✨
+                </div>
+                <div id="unlockChoices"></div>
+            </div>
+        `;
+        showUnlockChoices();
+    }
+    
+    showWord();
+}
+
 function caesarDecode(text, shift) {
     return text.split('').map(char => {
         if (char.match(/[a-z]/i)) {
