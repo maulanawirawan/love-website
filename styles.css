@@ -132,6 +132,12 @@ body {
     animation: fadeInUp 0.8s ease;
 }
 
+.lock-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
 @keyframes bounce {
     0%, 100% {
         transform: translateY(0);
@@ -1420,105 +1426,4 @@ body {
 .cipher-result {
     margin-top: 30px;
     animation: fadeInUp 0.5s ease;
-}
-
-/* Animated Character */
-.animated-character {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 30px;
-}
-
-#characterSVG {
-    width: 100%;
-    height: 100%;
-    transition: all 0.1s ease-out;
-}
-
-#characterSVG #leftPupil,
-#characterSVG #rightPupil {
-    transition: cx 0.05s ease-out, cy 0.05s ease-out;
-}
-
-#characterSVG #head {
-    transition: cx 0.15s ease-out, cy 0.15s ease-out;
-}
-
-#characterSVG #body {
-    transition: cx 0.2s ease-out, cy 0.2s ease-out;
-}
-
-#characterSVG #leftArm,
-#characterSVG #rightArm {
-    transition: x1 0.15s ease-out, y1 0.15s ease-out, 
-                x2 0.15s ease-out, y2 0.15s ease-out;
-}
-
-/* Word Search Game */
-.word-search-container {
-    text-align: center;
-}
-
-.words-to-find {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-.word-item {
-    background: var(--accent-color);
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-weight: 600;
-    color: var(--primary-color);
-    transition: all 0.3s ease;
-}
-
-.word-search-grid {
-    display: grid;
-    grid-template-columns: repeat(8, 45px);
-    gap: 3px;
-    justify-content: center;
-    margin: 30px auto;
-    user-select: none;
-}
-
-.ws-cell {
-    width: 45px;
-    height: 45px;
-    background: white;
-    border: 2px solid var(--accent-color);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.ws-cell:hover {
-    background: var(--accent-color);
-}
-
-.ws-cell.selected {
-    background: #ffe5f1;
-    border-color: var(--primary-color);
-    transform: scale(1.1);
-}
-
-.ws-cell.found {
-    background: #d5f4e6;
-    border-color: #27ae60;
-    color: #27ae60;
-}
-
-/* Game Status */
-.game-status {
-    margin-top: 10px;
-    min-height: 25px;
-    font-size: 0.9rem;
 }

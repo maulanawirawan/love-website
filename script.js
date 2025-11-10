@@ -3,8 +3,7 @@ const state = {
     password: 'iloveyou', // Change this to your desired password
     unlockedContent: [],
     currentScreen: 'password',
-    musicPlaying: false,
-    completedGames: [] // Track completed games
+    musicPlaying: false
 };
 
 // Animated Character
@@ -37,74 +36,36 @@ function animateCharacter(e) {
     
     // Calculate angle and distance
     const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
-    const distance = Math.min(Math.hypot(mouseX - centerX, mouseY - centerY) / 8, 60);
+    const distance = Math.min(Math.hypot(mouseX - centerX, mouseY - centerY) / 10, 30);
     
-    // Get elements
-    const leftBlush = document.getElementById('leftBlush');
-    const rightBlush = document.getElementById('rightBlush');
-    const leftHand = document.getElementById('leftHand');
-    const rightHand = document.getElementById('rightHand');
+    // Move pupils
+    const pupilX = Math.cos(angle) * Math.min(distance / 5, 3);
+    const pupilY = Math.sin(angle) * Math.min(distance / 5, 3);
     
-    // Blush intensity based on distance (closer = more blush!)
-    if (leftBlush && rightBlush) {
-        const blushIntensity = Math.min(distance / 40, 1);
-        leftBlush.setAttribute('opacity', 0.3 + blushIntensity * 0.5);
-        rightBlush.setAttribute('opacity', 0.3 + blushIntensity * 0.5);
-    }
+    if (leftPupil) leftPupil.setAttribute('cx', 85 + pupilX);
+    if (leftPupil) leftPupil.setAttribute('cy', 55 + pupilY);
+    if (rightPupil) rightPupil.setAttribute('cx', 115 + pupilX);
+    if (rightPupil) rightPupil.setAttribute('cy', 55 + pupilY);
     
-    // Move pupils (super responsive)
-    const pupilX = Math.cos(angle) * Math.min(distance / 4, 5);
-    const pupilY = Math.sin(angle) * Math.min(distance / 4, 5);
-    
-    if (leftPupil) {
-        leftPupil.setAttribute('cx', 85 + pupilX);
-        leftPupil.setAttribute('cy', 57 + pupilY);
-    }
-    if (rightPupil) {
-        rightPupil.setAttribute('cx', 115 + pupilX);
-        rightPupil.setAttribute('cy', 57 + pupilY);
-    }
-    
-    // Tilt and move head
-    const headTilt = Math.cos(angle) * Math.min(distance / 15, 6);
-    const headMoveY = Math.sin(angle) * Math.min(distance / 18, 5);
+    // Tilt head slightly
+    const headTilt = Math.cos(angle) * Math.min(distance / 30, 3);
+    const headMoveY = Math.sin(angle) * Math.min(distance / 30, 2);
     if (head) {
         head.setAttribute('cx', 100 + headTilt);
         head.setAttribute('cy', 60 + headMoveY);
     }
     
-    // Move body (follow head smoothly)
-    const bodyMoveX = Math.cos(angle) * Math.min(distance / 22, 5);
-    const bodyMoveY = Math.sin(angle) * Math.min(distance / 25, 4);
+    // Move body slightly
+    const bodyMove = Math.cos(angle) * Math.min(distance / 40, 2);
     if (body) {
-        body.setAttribute('cx', 100 + bodyMoveX);
-        body.setAttribute('cy', 130 + bodyMoveY);
+        body.setAttribute('cx', 100 + bodyMove);
     }
     
-    // Animate arms (wave effect!)
+    // Animate arms
     if (leftArm && rightArm) {
-        const armMoveX = Math.cos(angle) * Math.min(distance / 12, 12);
-        const armMoveY = Math.sin(angle) * Math.min(distance / 15, 10);
-        
-        leftArm.setAttribute('x1', 52 - armMoveX/2);
-        leftArm.setAttribute('y1', 115 + armMoveY/2);
-        leftArm.setAttribute('x2', 35 - armMoveX * 1.2);
-        leftArm.setAttribute('y2', 135 + armMoveY);
-        
-        rightArm.setAttribute('x1', 148 + armMoveX/2);
-        rightArm.setAttribute('y1', 115 + armMoveY/2);
-        rightArm.setAttribute('x2', 165 + armMoveX * 1.2);
-        rightArm.setAttribute('y2', 135 + armMoveY);
-    }
-    
-    // Move hands
-    if (leftHand) {
-        leftHand.setAttribute('cx', 35 - Math.cos(angle) * Math.min(distance / 10, 12));
-        leftHand.setAttribute('cy', 135 + Math.sin(angle) * Math.min(distance / 15, 10));
-    }
-    if (rightHand) {
-        rightHand.setAttribute('cx', 165 + Math.cos(angle) * Math.min(distance / 10, 12));
-        rightHand.setAttribute('cy', 135 + Math.sin(angle) * Math.min(distance / 15, 10));
+        const armAngle = Math.cos(angle) * Math.min(distance / 20, 5);
+        leftArm.setAttribute('x2', 40 - armAngle);
+        rightArm.setAttribute('x2', 160 + armAngle);
     }
 }
 
@@ -143,17 +104,17 @@ function initMaze() {
     mazeCanvas = document.getElementById('mazeCanvas');
     mazeCtx = mazeCanvas.getContext('2d');
     
-    // Solvable maze layout! (0 = wall, 1 = path)
+    // Simple maze layout (0 = wall, 1 = path)
     mazeGrid = [
+        [1,1,1,0,1,1,1,0,1,1],
+        [0,0,1,0,1,0,1,0,1,0],
+        [1,1,1,1,1,0,1,1,1,0],
+        [1,0,0,0,0,0,0,0,1,0],
         [1,1,1,1,1,0,1,1,1,1],
-        [0,0,0,0,1,0,1,0,0,1],
-        [1,1,1,0,1,0,1,0,1,1],
-        [1,0,1,0,1,1,1,0,1,0],
-        [1,0,1,0,0,0,1,0,1,0],
-        [1,0,1,1,1,0,1,0,1,1],
-        [1,0,0,0,1,0,1,0,0,1],
-        [1,1,1,0,1,0,1,1,0,1],
-        [0,0,1,0,1,1,1,0,0,1],
+        [0,0,0,0,1,0,1,0,0,0],
+        [1,1,1,0,1,1,1,0,1,1],
+        [1,0,1,0,0,0,0,0,1,0],
+        [1,0,1,1,1,1,1,1,1,0],
         [1,1,1,0,0,0,0,0,1,1]
     ];
     
@@ -219,20 +180,19 @@ function drawMaze() {
         }
     }
     
-    // Draw target (cewek)
+    // Draw target (heart)
     mazeCtx.font = '30px Arial';
-    mazeCtx.fillText('👩', mazeTarget.x * cellSize + 10, mazeTarget.y * cellSize + 38);
-
-    // Draw player (cowok)
+    mazeCtx.fillText('💕', mazeTarget.x * cellSize + 10, mazeTarget.y * cellSize + 38);
+    
+    // Draw player
     mazeCtx.font = '30px Arial';
-    mazeCtx.fillText('👨', mazePlayer.x * cellSize + 10, mazePlayer.y * cellSize + 38);
+    mazeCtx.fillText('😊', mazePlayer.x * cellSize + 10, mazePlayer.y * cellSize + 38);
 }
 
 function showMazeVictory() {
-    document.getElementById('mazeMessage').innerHTML = '🎉 Yayyy! We found each other! 💑<br>Here\'s our sweet moment together 😘💕';
+    document.getElementById('mazeMessage').innerHTML = '🎉 Yayyy! We found each other! 💕<br>Here\'s your sweet kiss 😘';
     createConfetti();
-    unlockContent('letter');
-    markGameCompleted('maze'); // Lock the game
+    unlockContent('letter'); // Unlock a content after winning
     
     setTimeout(() => {
         document.getElementById('quizModal').classList.remove('active');
@@ -249,49 +209,49 @@ function startMathPuzzle() {
             
             <div class="math-equations">
                 <div class="math-item">
-                    <p class="equation">(√16) + (9-4) = ?</p>
+                    <p class="equation">5 + 4 = ?</p>
                     <input type="number" class="math-input" data-answer="9" data-letter="I" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
                 
                 <div class="math-item">
-                    <p class="equation">(8+4) × 1 = ?</p>
+                    <p class="equation">10 + 2 = ?</p>
                     <input type="number" class="math-input" data-answer="12" data-letter="L" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
                 
                 <div class="math-item">
-                    <p class="equation">(5×3) + 0 = ?</p>
+                    <p class="equation">3 × 5 = ?</p>
                     <input type="number" class="math-input" data-answer="15" data-letter="O" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
                 
                 <div class="math-item">
-                    <p class="equation">(20+2) ÷ 1 = ?</p>
+                    <p class="equation">14 + 8 = ?</p>
                     <input type="number" class="math-input" data-answer="22" data-letter="V" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
                 
                 <div class="math-item">
-                    <p class="equation">(10÷2) - 0 = ?</p>
+                    <p class="equation">2 + 3 = ?</p>
                     <input type="number" class="math-input" data-answer="5" data-letter="E" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
                 
                 <div class="math-item">
-                    <p class="equation">(7×3) + 0 = ?</p>
+                    <p class="equation">25 - 4 = ?</p>
                     <input type="number" class="math-input" data-answer="21" data-letter="Y" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
                 
                 <div class="math-item">
-                    <p class="equation">(6×2) + 0 = ?</p>
+                    <p class="equation">6 × 2 = ?</p>
                     <input type="number" class="math-input" data-answer="12" data-letter="O" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
                 
                 <div class="math-item">
-                    <p class="equation">(5×3) - 0 = ?</p>
+                    <p class="equation">18 - 3 = ?</p>
                     <input type="number" class="math-input" data-answer="15" data-letter="U" placeholder="?">
                     <span class="letter-reveal"></span>
                 </div>
@@ -342,7 +302,6 @@ function checkMathAnswers() {
         `;
         createConfetti();
         unlockContent('music');
-        markGameCompleted('mathpuzzle'); // Lock the game
         
         setTimeout(() => {
             document.getElementById('quizModal').classList.remove('active');
@@ -354,10 +313,6 @@ function checkMathAnswers() {
 
 // Caesar Cipher Decoder Game
 function startCipherGame() {
-    // Random starting position (1-25, tapi bukan 3!)
-    const randomStart = Math.floor(Math.random() * 24) + 1; // 1-25
-    const startValue = randomStart === 3 ? 13 : randomStart; // Hindari 3
-    
     const cipherHTML = `
         <div class="cipher-game-container">
             <h2 class="quiz-title">🔐 Decode My Secret Message</h2>
@@ -371,8 +326,8 @@ function startCipherGame() {
                 <p style="margin: 20px 0;">Hint: Try shifting the alphabet! Each letter is replaced by another letter a certain number of positions away. 🤔</p>
                 <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0;">
                     <label>Shift Amount:</label>
-                    <input type="range" id="cipherShift" min="1" max="25" value="${startValue}" style="width: 200px;">
-                    <span id="shiftValue">${startValue}</span>
+                    <input type="range" id="cipherShift" min="1" max="25" value="3" style="width: 200px;">
+                    <span id="shiftValue">3</span>
                 </div>
                 <button id="decodeCipherBtn" class="btn-primary">Decode Message</button>
             </div>
@@ -420,7 +375,6 @@ function decodeCipher() {
         `;
         createConfetti();
         unlockContent('gallery');
-        markGameCompleted('cipher'); // Lock the game
         
         setTimeout(() => {
             document.getElementById('quizModal').classList.remove('active');
@@ -449,127 +403,6 @@ function caesarDecode(text, shift) {
     }).join('');
 }
 
-// Word Search Game
-function startWordSearchGame() {
-    const words = ['LOVE', 'HEART', 'KISS', 'FOREVER', 'HAPPY'];
-    const gridSize = 8;
-    const grid = createWordSearchGrid(gridSize, words);
-    
-    const wordSearchHTML = `
-        <div class="word-search-container">
-            <h2 class="quiz-title">🔍 Find the Love Words!</h2>
-            <p style="text-align: center; margin-bottom: 20px;">Find all 5 words hidden in the grid! 💕</p>
-            
-            <div class="words-to-find">
-                ${words.map(word => `<span class="word-item" data-word="${word}">${word}</span>`).join('')}
-            </div>
-            
-            <div class="word-search-grid" id="wordSearchGrid">
-                ${grid.map((row, y) => 
-                    row.map((letter, x) => 
-                        `<div class="ws-cell" data-x="${x}" data-y="${y}">${letter}</div>`
-                    ).join('')
-                ).join('')}
-            </div>
-            
-            <p id="wordSearchMessage" style="text-align: center; margin-top: 20px; font-size: 1.1rem;"></p>
-        </div>
-    `;
-    
-    document.getElementById('quizContent').innerHTML = wordSearchHTML;
-    document.getElementById('quizModal').classList.add('active');
-    
-    initWordSearchGame(words);
-}
-
-function createWordSearchGrid(size, words) {
-    const grid = Array(size).fill().map(() => Array(size).fill(''));
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    
-    // Place words (simplified - horizontal only)
-    words.forEach((word, idx) => {
-        const row = idx + 1;
-        const startCol = Math.floor((size - word.length) / 2);
-        for (let i = 0; i < word.length; i++) {
-            grid[row][startCol + i] = word[i];
-        }
-    });
-    
-    // Fill empty cells
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            if (!grid[y][x]) {
-                grid[y][x] = letters[Math.floor(Math.random() * letters.length)];
-            }
-        }
-    }
-    
-    return grid;
-}
-
-let foundWords = [];
-
-function initWordSearchGame(words) {
-    foundWords = [];
-    const cells = document.querySelectorAll('.ws-cell');
-    let selecting = false;
-    let selectedCells = [];
-    
-    cells.forEach(cell => {
-        cell.addEventListener('mousedown', () => {
-            selecting = true;
-            selectedCells = [cell];
-            cell.classList.add('selected');
-        });
-        
-        cell.addEventListener('mouseenter', () => {
-            if (selecting && !selectedCells.includes(cell)) {
-                selectedCells.push(cell);
-                cell.classList.add('selected');
-            }
-        });
-    });
-    
-    document.addEventListener('mouseup', () => {
-        if (selecting) {
-            checkWordSelection(selectedCells, words);
-            selectedCells.forEach(cell => cell.classList.remove('selected'));
-            selectedCells = [];
-            selecting = false;
-        }
-    });
-}
-
-function checkWordSelection(cells, words) {
-    const selectedWord = cells.map(cell => cell.textContent).join('');
-    
-    if (words.includes(selectedWord) && !foundWords.includes(selectedWord)) {
-        foundWords.push(selectedWord);
-        cells.forEach(cell => cell.classList.add('found'));
-        
-        const wordItem = document.querySelector(`[data-word="${selectedWord}"]`);
-        if (wordItem) {
-            wordItem.style.textDecoration = 'line-through';
-            wordItem.style.opacity = '0.5';
-        }
-        
-        if (foundWords.length === words.length) {
-            setTimeout(() => {
-                document.getElementById('wordSearchMessage').innerHTML = `
-                    <div class="success-message sparkle">🎉 You found all the words! 💕</div>
-                `;
-                createConfetti();
-                unlockContent('notes');
-                markGameCompleted('wordsearch');
-                
-                setTimeout(() => {
-                    document.getElementById('quizModal').classList.remove('active');
-                }, 3000);
-            }, 300);
-        }
-    }
-}
-
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
@@ -577,23 +410,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeApp() {
     createFloatingHearts();
-    initCharacterAnimation();  // ← TAMBAH BARIS INI
     setupEventListeners();
     loadSavedProgress();
-    loadCompletedGames(); // Load completed games
     checkAutoLogin();
 }
 
 // Check if user already logged in
 function checkAutoLogin() {
-    const isLoggedIn = localStorage.getItem('loveWebsiteLoggedIn');
-    if (isLoggedIn === 'true') {
-        // Skip password and welcome screen
-        document.getElementById('passwordScreen').classList.remove('active');
-        document.getElementById('mainContent').classList.add('active');
-        state.currentScreen = 'main';
-        updateCardStates();
-    }
+    // MATIKAN AUTO-LOGIN! User harus login setiap kali buka website
+    // Tapi progress unlock tetap tersimpan
+    
+    // Hapus status login (kalau ada)
+    localStorage.removeItem('loveWebsiteLoggedIn');
+    
+    console.log('🔒 Auto-login disabled. Please login first!');
+    
+    // Tidak ada kode lain disini - semua user mulai dari password screen
 }
 
 // Create Floating Hearts Animation
@@ -659,41 +491,7 @@ function setupEventListeners() {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const quizType = card.getAttribute('data-quiz');
-            
-            // Check if game already completed
-            if (state.completedGames.includes(quizType)) {
-                alert('You already completed this game! 🎉');
-                return;
-            }
-            
-            // Launch games based on quiz type
-            switch(quizType) {
-                case 'maze':
-                    startMazeGame();
-                    break;
-                case 'mathpuzzle':
-                    startMathPuzzle();
-                    break;
-                case 'cipher':
-                    startCipherGame();
-                    break;
-                case 'memory':
-                    createMemoryGame();
-                    initializeMemoryGame();
-                    document.getElementById('quizModal').classList.add('active');
-                    break;
-                case 'trivia':
-                    createTriviaQuiz();
-                    initializeTriviaQuiz();
-                    document.getElementById('quizModal').classList.add('active');
-                    break;
-                case 'wordsearch':
-                    startWordSearchGame();
-                    break;
-                default:
-                    startQuiz(quizType);
-                    break;
-            }
+            startQuiz(quizType);
         });
     });
     
@@ -719,7 +517,10 @@ function checkPassword() {
     
     if (input.value.toLowerCase() === state.password.toLowerCase()) {
         errorMsg.textContent = '';
-        localStorage.setItem('loveWebsiteLoggedIn', 'true');
+        
+        // HAPUS BARIS INI - jangan save login status!
+        // localStorage.setItem('loveWebsiteLoggedIn', 'true'); // ❌ HAPUS!
+        
         showWelcomeScreen();
     } else {
         errorMsg.textContent = '❌ Oops! Try again, sweetheart 💕';
@@ -813,51 +614,6 @@ function unlockContent(contentType) {
         state.unlockedContent.push(contentType);
         updateCardStates();
         saveProgress();
-    }
-}
-
-function markGameCompleted(gameType) {
-    if (!state.completedGames.includes(gameType)) {
-        state.completedGames.push(gameType);
-        localStorage.setItem('completedGames', JSON.stringify(state.completedGames));
-        
-        // Update UI
-        const gameCard = document.getElementById(`game-${gameType}`);
-        if (gameCard) {
-            const btn = gameCard.querySelector('.btn-secondary');
-            const status = gameCard.querySelector('.game-status');
-            
-            btn.disabled = true;
-            btn.textContent = '✓ Completed';
-            btn.style.opacity = '0.6';
-            btn.style.cursor = 'not-allowed';
-            
-            status.innerHTML = '<span style="color: #27ae60; font-weight: 600;">✓ Unlocked!</span>';
-            
-            gameCard.style.opacity = '0.7';
-        }
-    }
-}
-
-function loadCompletedGames() {
-    const saved = localStorage.getItem('completedGames');
-    if (saved) {
-        state.completedGames = JSON.parse(saved);
-        state.completedGames.forEach(gameType => {
-            const gameCard = document.getElementById(`game-${gameType}`);
-            if (gameCard) {
-                const btn = gameCard.querySelector('.btn-secondary');
-                const status = gameCard.querySelector('.game-status');
-                
-                btn.disabled = true;
-                btn.textContent = '✓ Completed';
-                btn.style.opacity = '0.6';
-                btn.style.cursor = 'not-allowed';
-                
-                status.innerHTML = '<span style="color: #27ae60; font-weight: 600;">✓ Unlocked!</span>';
-                gameCard.style.opacity = '0.7';
-            }
-        });
     }
 }
 
@@ -1179,16 +935,11 @@ function checkMatch() {
             setTimeout(() => {
                 document.getElementById('memoryStatus').innerHTML = `
                     <div class="success-message">
-                        🎉 Congratulations!
+                        🎉 Congratulations! Choose which content to unlock!
                     </div>
+                    <div id="unlockChoices" style="margin-top: 20px;"></div>
                 `;
-                createConfetti();
-                unlockContent('coupons');
-                markGameCompleted('memory'); // Lock game
-                
-                setTimeout(() => {
-                    document.getElementById('quizModal').classList.remove('active');
-                }, 3000);
+                showUnlockChoices();
             }, 500);
         }
     } else {
@@ -1577,11 +1328,7 @@ function selectUnlock(contentType) {
     
     // Create confetti effect
     createConfetti();
-    unlockContent('birthday');
-    markGameCompleted('trivia'); // Lock game
-    setTimeout(() => {
-        document.getElementById('quizModal').classList.remove('active');
-    }, 3000);
+    
     document.getElementById('unlockChoices').innerHTML = `
         <div class="success-message sparkle" style="margin-top: 20px;">
             ✨🎉 Content unlocked successfully! 🎉✨
@@ -1656,33 +1403,198 @@ function loadSavedProgress() {
 }
 
 function logout() {
-    // Show romantic alert
-    alert('Seriusan nih kamu logout dari hidupku? 😢');
+    // Buat modal custom
+    const modal = document.createElement('div');
+    modal.id = 'prankModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    `;
     
-    // Second alert - no escape!
-    setTimeout(() => {
-        alert('NO YOU CAN\'T! ❌💔');
-        
-        setTimeout(() => {
-            alert('You are MINE! 💕👫');
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 500px;
+            animation: slideIn 0.3s ease;
+        ">
+            <div style="font-size: 5rem; margin-bottom: 20px;">😈</div>
+            <h2 style="color: #ff6b9d; font-size: 2rem; margin-bottom: 20px;">
+                SERIUS NIH MAU LOGOUT?
+            </h2>
+            <p style="font-size: 1.2rem; color: #555; margin-bottom: 30px; line-height: 1.6;">
+                Kamu pikir bisa lepas dari aku? 😏<br>
+                <strong>NO YOU CAN'T!</strong><br>
+                YOU ARE MINE! 💕
+            </p>
             
-            setTimeout(() => {
-                alert('Forever and always... You can\'t escape my love! 💖✨');
-            }, 500);
-        }, 500);
-    }, 500);
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <button onclick="attemptLogout()" style="
+                    flex: 1;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #ff6b9d, #c44569);
+                    color: white;
+                    border: none;
+                    border-radius: 15px;
+                    font-size: 1.1rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">
+                    Yes, Logout
+                </button>
+                <button onclick="cancelLogout()" style="
+                    flex: 1;
+                    padding: 15px;
+                    background: white;
+                    color: #ff6b9d;
+                    border: 2px solid #ff6b9d;
+                    border-radius: 15px;
+                    font-size: 1.1rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">
+                    No, Stay
+                </button>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: #999; font-style: italic;">
+                (Pilih yang manapun, hasil tetep sama 😘)
+            </p>
+        </div>
+    `;
     
-    // Never actually logout - return false
-    return false;
+    document.body.appendChild(modal);
 }
 
-// Add shake animation to CSS dynamically
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
+// Kalau klik YES (tetap ga bisa logout)
+function attemptLogout() {
+    const modal = document.getElementById('prankModal');
+    modal.querySelector('div').innerHTML = `
+        <div style="font-size: 5rem; margin-bottom: 20px;">🔒</div>
+        <h2 style="color: #ff6b9d; font-size: 2rem; margin-bottom: 20px;">
+            LOGOUT DITOLAK!
+        </h2>
+        <p style="font-size: 1.2rem; color: #555; margin-bottom: 30px; line-height: 1.6;">
+            Hahaha! Kamu pikir gampang? 😂<br>
+            Aku ga akan pernah lepas kamu!<br>
+            <strong>YOU'RE STUCK WITH ME FOREVER! 💖</strong>
+        </p>
+        <button onclick="closePrankModal()" style="
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        ">
+            Fine, I'll Stay 💕
+        </button>
+    `;
+    
+    createLoveExplosion();
+}
+
+// Kalau klik NO (tetap ga bisa logout juga)
+function cancelLogout() {
+    const modal = document.getElementById('prankModal');
+    modal.querySelector('div').innerHTML = `
+        <div style="font-size: 5rem; margin-bottom: 20px;">🥰</div>
+        <h2 style="color: #ff6b9d; font-size: 2rem; margin-bottom: 20px;">
+            GOOD CHOICE!
+        </h2>
+        <p style="font-size: 1.2rem; color: #555; margin-bottom: 30px; line-height: 1.6;">
+            Emang gabisa ninggalin aku kan? 😊<br>
+            Kita terikat selamanya!<br>
+            <strong>FOREVER AND EVER! 💕</strong>
+        </p>
+        <button onclick="closePrankModal()" style="
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        ">
+            Yes, I'm Yours Forever 💖
+        </button>
+    `;
+    
+    createLoveExplosion();
+}
+
+// Tutup modal (TIDAK LOGOUT!)
+function closePrankModal() {
+    const modal = document.getElementById('prankModal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+// Love explosion effect
+function createLoveExplosion() {
+    const hearts = ['💕', '💖', '💗', '💝', '❤️', '💘', '💓'];
+    
+    for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+            const heart = document.createElement('div');
+            heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+            heart.style.position = 'fixed';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.top = Math.random() * 100 + '%';
+            heart.style.fontSize = '2.5rem';
+            heart.style.zIndex = '9998';
+            heart.style.pointerEvents = 'none';
+            heart.style.animation = 'float-up 2s ease-out forwards';
+            
+            document.body.appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 2000);
+        }, i * 50);
+    }
+}
+
+// Tambah CSS animations untuk modal
+const prankStyles = document.createElement('style');
+prankStyles.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @keyframes slideIn {
+        from { 
+            transform: scale(0.7) translateY(-50px);
+            opacity: 0;
+        }
+        to { 
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(prankStyles);
