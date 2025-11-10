@@ -410,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeApp() {
     createFloatingHearts();
+    initCharacterAnimation();  // ← TAMBAH BARIS INI
     setupEventListeners();
     loadSavedProgress();
     checkAutoLogin();
@@ -491,7 +492,22 @@ function setupEventListeners() {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const quizType = card.getAttribute('data-quiz');
-            startQuiz(quizType);
+            
+            // Launch games based on quiz type
+            switch(quizType) {
+                case 'maze':
+                    startMazeGame();
+                    break;
+                case 'mathpuzzle':
+                    startMathPuzzle();
+                    break;
+                case 'cipher':
+                    startCipherGame();
+                    break;
+                default:
+                    startQuiz(quizType); // For any other quiz types
+                    break;
+            }
         });
     });
     
