@@ -3,8 +3,572 @@ const state = {
     password: 'iloveyou', // Change this to your desired password
     unlockedContent: [],
     currentScreen: 'password',
-    musicPlaying: false
+    musicPlaying: false,
+    completedGames: [] // Track completed games
 };
+
+// Animated Character
+let characterSVG;
+let leftPupil, rightPupil, head, body, leftArm, rightArm;
+
+function initCharacterAnimation() {
+    characterSVG = document.getElementById('characterSVG');
+    if (!characterSVG) return;
+    
+    leftPupil = document.getElementById('leftPupil');
+    rightPupil = document.getElementById('rightPupil');
+    head = document.getElementById('head');
+    body = document.getElementById('body');
+    leftArm = document.getElementById('leftArm');
+    rightArm = document.getElementById('rightArm');
+    
+    document.addEventListener('mousemove', animateCharacter);
+}
+
+function animateCharacter(e) {
+    if (!characterSVG) return;
+    
+    const rect = characterSVG.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    
+    // Calculate angle and distance
+    const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+    const distance = Math.min(Math.hypot(mouseX - centerX, mouseY - centerY) / 8, 60);
+    
+    // Get elements
+    const leftBlush = document.getElementById('leftBlush');
+    const rightBlush = document.getElementById('rightBlush');
+    const leftHand = document.getElementById('leftHand');
+    const rightHand = document.getElementById('rightHand');
+    
+    // Blush intensity based on distance (closer = more blush!)
+    if (leftBlush && rightBlush) {
+        const blushIntensity = Math.min(distance / 40, 1);
+        leftBlush.setAttribute('opacity', 0.3 + blushIntensity * 0.5);
+        rightBlush.setAttribute('opacity', 0.3 + blushIntensity * 0.5);
+    }
+    
+    // Move pupils (super responsive)
+    const pupilX = Math.cos(angle) * Math.min(distance / 4, 5);
+    const pupilY = Math.sin(angle) * Math.min(distance / 4, 5);
+    
+    if (leftPupil) {
+        leftPupil.setAttribute('cx', 85 + pupilX);
+        leftPupil.setAttribute('cy', 57 + pupilY);
+    }
+    if (rightPupil) {
+        rightPupil.setAttribute('cx', 115 + pupilX);
+        rightPupil.setAttribute('cy', 57 + pupilY);
+    }
+    
+    // Tilt and move head
+    const headTilt = Math.cos(angle) * Math.min(distance / 15, 6);
+    const headMoveY = Math.sin(angle) * Math.min(distance / 18, 5);
+    if (head) {
+        head.setAttribute('cx', 100 + headTilt);
+        head.setAttribute('cy', 60 + headMoveY);
+    }
+    
+    // Move body (follow head smoothly)
+    const bodyMoveX = Math.cos(angle) * Math.min(distance / 22, 5);
+    const bodyMoveY = Math.sin(angle) * Math.min(distance / 25, 4);
+    if (body) {
+        body.setAttribute('cx', 100 + bodyMoveX);
+        body.setAttribute('cy', 130 + bodyMoveY);
+    }
+    
+    // Animate arms (wave effect!)
+    if (leftArm && rightArm) {
+        const armMoveX = Math.cos(angle) * Math.min(distance / 12, 12);
+        const armMoveY = Math.sin(angle) * Math.min(distance / 15, 10);
+        
+        leftArm.setAttribute('x1', 52 - armMoveX/2);
+        leftArm.setAttribute('y1', 115 + armMoveY/2);
+        leftArm.setAttribute('x2', 35 - armMoveX * 1.2);
+        leftArm.setAttribute('y2', 135 + armMoveY);
+        
+        rightArm.setAttribute('x1', 148 + armMoveX/2);
+        rightArm.setAttribute('y1', 115 + armMoveY/2);
+        rightArm.setAttribute('x2', 165 + armMoveX * 1.2);
+        rightArm.setAttribute('y2', 135 + armMoveY);
+    }
+    
+    // Move hands
+    if (leftHand) {
+        leftHand.setAttribute('cx', 35 - Math.cos(angle) * Math.min(distance / 10, 12));
+        leftHand.setAttribute('cy', 135 + Math.sin(angle) * Math.min(distance / 15, 10));
+    }
+    if (rightHand) {
+        rightHand.setAttribute('cx', 165 + Math.cos(angle) * Math.min(distance / 10, 12));
+        rightHand.setAttribute('cy', 135 + Math.sin(angle) * Math.min(distance / 15, 10));
+    }
+}
+
+// Maze Game
+function startMazeGame() {
+    const mazeHTML = `
+        <div class="maze-game-container">
+            <h2 class="quiz-title">🎮 Find Your Way to Love!</h2>
+            <p style="text-align: center; margin-bottom: 20px;">Use Arrow Keys to move 💕</p>
+            <canvas id="mazeCanvas" width="500" height="500"></canvas>
+            <div class="maze-controls">
+                <button class="control-btn" onclick="moveMazePlayer('up')">⬆️</button>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="control-btn" onclick="moveMazePlayer('left')">⬅️</button>
+                    <button class="control-btn" onclick="moveMazePlayer('down')">⬇️</button>
+                    <button class="control-btn" onclick="moveMazePlayer('right')">➡️</button>
+                </div>
+            </div>
+            <p id="mazeMessage" style="text-align: center; margin-top: 20px; font-size: 1.2rem; color: var(--primary-color);"></p>
+        </div>
+    `;
+    
+    document.getElementById('quizContent').innerHTML = mazeHTML;
+    document.getElementById('quizModal').classList.add('active');
+    
+    initMaze();
+}
+
+let mazePlayer = { x: 0, y: 0 };
+let mazeTarget = { x: 9, y: 9 };
+let mazeGrid = [];
+let mazeCtx;
+let mazeCanvas;
+
+function initMaze() {
+    mazeCanvas = document.getElementById('mazeCanvas');
+    mazeCtx = mazeCanvas.getContext('2d');
+    
+    // Solvable maze layout! (0 = wall, 1 = path)
+    mazeGrid = [
+        [1,1,1,1,1,0,1,1,1,1],
+        [0,0,0,0,1,0,1,0,0,1],
+        [1,1,1,0,1,0,1,0,1,1],
+        [1,0,1,0,1,1,1,0,1,0],
+        [1,0,1,0,0,0,1,0,1,0],
+        [1,0,1,1,1,0,1,0,1,1],
+        [1,0,0,0,1,0,1,0,0,1],
+        [1,1,1,0,1,0,1,1,0,1],
+        [0,0,1,0,1,1,1,0,0,1],
+        [1,1,1,0,0,0,0,0,1,1]
+    ];
+    
+    mazePlayer = { x: 0, y: 0 };
+    drawMaze();
+    
+    // Keyboard controls
+    document.addEventListener('keydown', handleMazeKeyboard);
+}
+
+function handleMazeKeyboard(e) {
+    if (!document.getElementById('mazeCanvas')) return;
+    
+    switch(e.key) {
+        case 'ArrowUp': moveMazePlayer('up'); break;
+        case 'ArrowDown': moveMazePlayer('down'); break;
+        case 'ArrowLeft': moveMazePlayer('left'); break;
+        case 'ArrowRight': moveMazePlayer('right'); break;
+    }
+}
+
+function moveMazePlayer(direction) {
+    let newX = mazePlayer.x;
+    let newY = mazePlayer.y;
+    
+    switch(direction) {
+        case 'up': newY--; break;
+        case 'down': newY++; break;
+        case 'left': newX--; break;
+        case 'right': newX++; break;
+    }
+    
+    // Check boundaries and walls
+    if (newX >= 0 && newX < 10 && newY >= 0 && newY < 10 && mazeGrid[newY][newX] === 1) {
+        mazePlayer.x = newX;
+        mazePlayer.y = newY;
+        drawMaze();
+        
+        // Check if reached target
+        if (mazePlayer.x === mazeTarget.x && mazePlayer.y === mazeTarget.y) {
+            setTimeout(() => {
+                showMazeVictory();
+            }, 300);
+        }
+    }
+}
+
+function drawMaze() {
+    const cellSize = 50;
+    mazeCtx.clearRect(0, 0, mazeCanvas.width, mazeCanvas.height);
+    
+    // Draw maze
+    for (let y = 0; y < 10; y++) {
+        for (let x = 0; x < 10; x++) {
+            if (mazeGrid[y][x] === 0) {
+                mazeCtx.fillStyle = '#2c3e50';
+            } else {
+                mazeCtx.fillStyle = '#b3e5fc';
+            }
+            mazeCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            mazeCtx.strokeStyle = '#fff';
+            mazeCtx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+    }
+    
+    // Draw target (cewek)
+    mazeCtx.font = '30px Arial';
+    mazeCtx.fillText('👩', mazeTarget.x * cellSize + 10, mazeTarget.y * cellSize + 38);
+
+    // Draw player (cowok)
+    mazeCtx.font = '30px Arial';
+    mazeCtx.fillText('👨', mazePlayer.x * cellSize + 10, mazePlayer.y * cellSize + 38);
+}
+
+function showMazeVictory() {
+    document.getElementById('mazeMessage').innerHTML = '🎉 Yayyy! We found each other! 💑<br>Here\'s our sweet moment together 😘💕';
+    createConfetti();
+    unlockContent('letter');
+    markGameCompleted('maze'); // Lock the game
+    
+    setTimeout(() => {
+        document.getElementById('quizModal').classList.remove('active');
+        document.removeEventListener('keydown', handleMazeKeyboard);
+    }, 3000);
+}
+
+// Math Puzzle Game
+function startMathPuzzle() {
+    const mathHTML = `
+        <div class="math-puzzle-container">
+            <h2 class="quiz-title">🧮 Decode My Love Message</h2>
+            <p style="text-align: center; margin-bottom: 30px;">Solve each equation. The answer reveals a letter!</p>
+            
+            <div class="math-equations">
+                <div class="math-item">
+                    <p class="equation">(√16) + (9-4) = ?</p>
+                    <input type="number" class="math-input" data-answer="9" data-letter="I" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+                
+                <div class="math-item">
+                    <p class="equation">(8+4) × 1 = ?</p>
+                    <input type="number" class="math-input" data-answer="12" data-letter="L" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+                
+                <div class="math-item">
+                    <p class="equation">(5×3) + 0 = ?</p>
+                    <input type="number" class="math-input" data-answer="15" data-letter="O" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+                
+                <div class="math-item">
+                    <p class="equation">(20+2) ÷ 1 = ?</p>
+                    <input type="number" class="math-input" data-answer="22" data-letter="V" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+                
+                <div class="math-item">
+                    <p class="equation">(10÷2) - 0 = ?</p>
+                    <input type="number" class="math-input" data-answer="5" data-letter="E" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+                
+                <div class="math-item">
+                    <p class="equation">(7×3) + 0 = ?</p>
+                    <input type="number" class="math-input" data-answer="21" data-letter="Y" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+                
+                <div class="math-item">
+                    <p class="equation">(6×2) + 0 = ?</p>
+                    <input type="number" class="math-input" data-answer="12" data-letter="O" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+                
+                <div class="math-item">
+                    <p class="equation">(5×3) - 0 = ?</p>
+                    <input type="number" class="math-input" data-answer="15" data-letter="U" placeholder="?">
+                    <span class="letter-reveal"></span>
+                </div>
+            </div>
+            
+            <div id="mathMessage" class="math-message"></div>
+            <button id="checkMathBtn" class="btn-primary" style="margin-top: 20px;">Check Answers</button>
+        </div>
+    `;
+    
+    document.getElementById('quizContent').innerHTML = mathHTML;
+    document.getElementById('quizModal').classList.add('active');
+    
+    document.getElementById('checkMathBtn').addEventListener('click', checkMathAnswers);
+}
+
+function checkMathAnswers() {
+    const inputs = document.querySelectorAll('.math-input');
+    let allCorrect = true;
+    let message = '';
+    
+    inputs.forEach(input => {
+        const answer = parseInt(input.value);
+        const correctAnswer = parseInt(input.dataset.answer);
+        const letter = input.dataset.letter;
+        const reveal = input.nextElementSibling;
+        
+        if (answer === correctAnswer) {
+            input.style.borderColor = '#27ae60';
+            reveal.textContent = letter;
+            reveal.style.color = 'var(--primary-color)';
+            reveal.style.fontSize = '2rem';
+            reveal.style.fontWeight = 'bold';
+            message += letter;
+        } else {
+            input.style.borderColor = '#e74c3c';
+            reveal.textContent = '?';
+            allCorrect = false;
+        }
+    });
+    
+    if (allCorrect) {
+        document.getElementById('mathMessage').innerHTML = `
+            <div class="success-message sparkle">
+                <h3 style="font-size: 3rem; margin-bottom: 15px;">${message}</h3>
+                <p style="font-size: 1.2rem;">You decoded my message! 💕</p>
+            </div>
+        `;
+        createConfetti();
+        unlockContent('music');
+        markGameCompleted('mathpuzzle'); // Lock the game
+        
+        setTimeout(() => {
+            document.getElementById('quizModal').classList.remove('active');
+        }, 3000);
+    } else {
+        document.getElementById('mathMessage').innerHTML = '<p style="color: #e74c3c;">Some answers are wrong. Try again! 💪</p>';
+    }
+}
+
+// Caesar Cipher Decoder Game
+function startCipherGame() {
+    // Random starting position (1-25, tapi bukan 3!)
+    const randomStart = Math.floor(Math.random() * 24) + 1; // 1-25
+    const startValue = randomStart === 3 ? 13 : randomStart; // Hindari 3
+    
+    const cipherHTML = `
+        <div class="cipher-game-container">
+            <h2 class="quiz-title">🔐 Decode My Secret Message</h2>
+            <p style="text-align: center; margin-bottom: 20px;">I wrote you a love letter in secret code! 💌</p>
+            
+            <div class="cipher-scrapbook">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23fef5f8' width='400' height='500'/%3E%3Ctext x='50%25' y='30' text-anchor='middle' fill='%23ff6b9d' font-size='20' font-weight='bold'%3E💌 Secret Love Letter 💌%3C/text%3E%3Ctext x='20' y='80' fill='%232c3e50' font-size='14' font-family='courier'%3EBrx duh pb idyrulwh shuvrq%3C/text%3E%3Ctext x='20' y='110' fill='%232c3e50' font-size='14' font-family='courier'%3EPb khduw ehdwv rqob iru brx%3C/text%3E%3Ctext x='20' y='140' fill='%232c3e50' font-size='14' font-family='courier'%3EZlwkrxw brx, olih lvq'w hpswb%3C/text%3E%3Ctext x='20' y='170' fill='%232c3e50' font-size='14' font-family='courier'%3EZkhq L dp zlwk brx, L dp kdssb%3C/text%3E%3Ctext x='20' y='200' fill='%232c3e50' font-size='14' font-family='courier'%3EL fdq'w vwrs wklqnlqj derxw brx%3C/text%3E%3Ctext x='20' y='230' fill='%232c3e50' font-size='14' font-family='courier'%3EBrx duh pb vxqvklqh%3C/text%3E%3Ctext x='20' y='260' fill='%232c3e50' font-size='14' font-family='courier'%3EPxfk qhduhu wkurxjkrxw%3C/text%3E%3Ctext x='20' y='290' fill='%232c3e50' font-size='14' font-family='courier'%3EL zrxog fkrrvh brx djdlq%3C/text%3E%3Ctext x='20' y='320' fill='%232c3e50' font-size='14' font-family='courier'%3EBrx duh pb iruhyhu oryh%3C/text%3E%3C/svg%3E" style="max-width: 100%; border-radius: 15px; box-shadow: var(--shadow);">
+            </div>
+            
+            <div class="cipher-controls">
+                <p style="margin: 20px 0;">Hint: Try shifting the alphabet! Each letter is replaced by another letter a certain number of positions away. 🤔</p>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0;">
+                    <label>Shift Amount:</label>
+                    <input type="range" id="cipherShift" min="1" max="25" value="${startValue}" style="width: 200px;">
+                    <span id="shiftValue">${startValue}</span>
+                </div>
+                <button id="decodeCipherBtn" class="btn-primary">Decode Message</button>
+            </div>
+            
+            <div id="cipherResult" class="cipher-result"></div>
+        </div>
+    `;
+    
+    document.getElementById('quizContent').innerHTML = cipherHTML;
+    document.getElementById('quizModal').classList.add('active');
+    
+    const shiftInput = document.getElementById('cipherShift');
+    const shiftValue = document.getElementById('shiftValue');
+    shiftInput.addEventListener('input', () => {
+        shiftValue.textContent = shiftInput.value;
+    });
+    
+    document.getElementById('decodeCipherBtn').addEventListener('click', decodeCipher);
+}
+
+function decodeCipher() {
+    const shift = parseInt(document.getElementById('cipherShift').value);
+    const encoded = [
+        "Brx duh pb idyrulwh shuvrq",
+        "Pb khduw ehdwv rqob iru brx",
+        "Zlwkrxw brx, olih lvq'w hpswb",
+        "Zkhq L dp zlwk brx, L dp kdssb",
+        "L fdq'w vwrs wklqnlqj derxw brx",
+        "Brx duh pb vxqvklqh",
+        "Pxfk qhduhu wkurxjkrxw",
+        "L zrxog fkrrvh brx djdlq dqg djdlq",
+        "Brx duh pb iruhyhu oryh"
+    ];
+    
+    const decoded = encoded.map(line => caesarDecode(line, shift));
+    
+    const resultDiv = document.getElementById('cipherResult');
+    
+    if (shift === 3) {
+        resultDiv.innerHTML = `
+            <div class="success-message sparkle" style="text-align: left; padding: 30px;">
+                <h3 style="text-align: center; margin-bottom: 20px; color: var(--primary-color);">💕 Decoded Successfully! 💕</h3>
+                ${decoded.map(line => `<p style="font-size: 1.1rem; line-height: 1.8; margin: 10px 0;">${line}</p>`).join('')}
+            </div>
+        `;
+        createConfetti();
+        unlockContent('gallery');
+        markGameCompleted('cipher'); // Lock the game
+        
+        setTimeout(() => {
+            document.getElementById('quizModal').classList.remove('active');
+        }, 5000);
+    } else {
+        resultDiv.innerHTML = `
+            <div style="background: #fadbd8; padding: 20px; border-radius: 15px; margin-top: 20px;">
+                <p style="color: #e74c3c;">Hmm, that doesn't look right... Try a different shift! 🤔</p>
+                <div style="margin-top: 15px; text-align: left; font-size: 0.9rem; color: #555;">
+                    ${decoded.slice(0, 3).map(line => `<p>${line}</p>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+}
+
+function caesarDecode(text, shift) {
+    return text.split('').map(char => {
+        if (char.match(/[a-z]/i)) {
+            const code = char.charCodeAt(0);
+            const isUpperCase = code >= 65 && code <= 90;
+            const base = isUpperCase ? 65 : 97;
+            return String.fromCharCode(((code - base - shift + 26) % 26) + base);
+        }
+        return char;
+    }).join('');
+}
+
+// Word Search Game
+function startWordSearchGame() {
+    const words = ['LOVE', 'HEART', 'KISS', 'FOREVER', 'HAPPY'];
+    const gridSize = 8;
+    const grid = createWordSearchGrid(gridSize, words);
+    
+    const wordSearchHTML = `
+        <div class="word-search-container">
+            <h2 class="quiz-title">🔍 Find the Love Words!</h2>
+            <p style="text-align: center; margin-bottom: 20px;">Find all 5 words hidden in the grid! 💕</p>
+            
+            <div class="words-to-find">
+                ${words.map(word => `<span class="word-item" data-word="${word}">${word}</span>`).join('')}
+            </div>
+            
+            <div class="word-search-grid" id="wordSearchGrid">
+                ${grid.map((row, y) => 
+                    row.map((letter, x) => 
+                        `<div class="ws-cell" data-x="${x}" data-y="${y}">${letter}</div>`
+                    ).join('')
+                ).join('')}
+            </div>
+            
+            <p id="wordSearchMessage" style="text-align: center; margin-top: 20px; font-size: 1.1rem;"></p>
+        </div>
+    `;
+    
+    document.getElementById('quizContent').innerHTML = wordSearchHTML;
+    document.getElementById('quizModal').classList.add('active');
+    
+    initWordSearchGame(words);
+}
+
+function createWordSearchGrid(size, words) {
+    const grid = Array(size).fill().map(() => Array(size).fill(''));
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    
+    // Place words (simplified - horizontal only)
+    words.forEach((word, idx) => {
+        const row = idx + 1;
+        const startCol = Math.floor((size - word.length) / 2);
+        for (let i = 0; i < word.length; i++) {
+            grid[row][startCol + i] = word[i];
+        }
+    });
+    
+    // Fill empty cells
+    for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+            if (!grid[y][x]) {
+                grid[y][x] = letters[Math.floor(Math.random() * letters.length)];
+            }
+        }
+    }
+    
+    return grid;
+}
+
+let foundWords = [];
+
+function initWordSearchGame(words) {
+    foundWords = [];
+    const cells = document.querySelectorAll('.ws-cell');
+    let selecting = false;
+    let selectedCells = [];
+    
+    cells.forEach(cell => {
+        cell.addEventListener('mousedown', () => {
+            selecting = true;
+            selectedCells = [cell];
+            cell.classList.add('selected');
+        });
+        
+        cell.addEventListener('mouseenter', () => {
+            if (selecting && !selectedCells.includes(cell)) {
+                selectedCells.push(cell);
+                cell.classList.add('selected');
+            }
+        });
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (selecting) {
+            checkWordSelection(selectedCells, words);
+            selectedCells.forEach(cell => cell.classList.remove('selected'));
+            selectedCells = [];
+            selecting = false;
+        }
+    });
+}
+
+function checkWordSelection(cells, words) {
+    const selectedWord = cells.map(cell => cell.textContent).join('');
+    
+    if (words.includes(selectedWord) && !foundWords.includes(selectedWord)) {
+        foundWords.push(selectedWord);
+        cells.forEach(cell => cell.classList.add('found'));
+        
+        const wordItem = document.querySelector(`[data-word="${selectedWord}"]`);
+        if (wordItem) {
+            wordItem.style.textDecoration = 'line-through';
+            wordItem.style.opacity = '0.5';
+        }
+        
+        if (foundWords.length === words.length) {
+            setTimeout(() => {
+                document.getElementById('wordSearchMessage').innerHTML = `
+                    <div class="success-message sparkle">🎉 You found all the words! 💕</div>
+                `;
+                createConfetti();
+                unlockContent('notes');
+                markGameCompleted('wordsearch');
+                
+                setTimeout(() => {
+                    document.getElementById('quizModal').classList.remove('active');
+                }, 3000);
+            }, 300);
+        }
+    }
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,8 +577,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeApp() {
     createFloatingHearts();
+    initCharacterAnimation();  // ← TAMBAH BARIS INI
     setupEventListeners();
     loadSavedProgress();
+    loadCompletedGames(); // Load completed games
     checkAutoLogin();
 }
 
@@ -93,7 +659,41 @@ function setupEventListeners() {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const quizType = card.getAttribute('data-quiz');
-            startQuiz(quizType);
+            
+            // Check if game already completed
+            if (state.completedGames.includes(quizType)) {
+                alert('You already completed this game! 🎉');
+                return;
+            }
+            
+            // Launch games based on quiz type
+            switch(quizType) {
+                case 'maze':
+                    startMazeGame();
+                    break;
+                case 'mathpuzzle':
+                    startMathPuzzle();
+                    break;
+                case 'cipher':
+                    startCipherGame();
+                    break;
+                case 'memory':
+                    createMemoryGame();
+                    initializeMemoryGame();
+                    document.getElementById('quizModal').classList.add('active');
+                    break;
+                case 'trivia':
+                    createTriviaQuiz();
+                    initializeTriviaQuiz();
+                    document.getElementById('quizModal').classList.add('active');
+                    break;
+                case 'wordsearch':
+                    startWordSearchGame();
+                    break;
+                default:
+                    startQuiz(quizType);
+                    break;
+            }
         });
     });
     
@@ -213,6 +813,51 @@ function unlockContent(contentType) {
         state.unlockedContent.push(contentType);
         updateCardStates();
         saveProgress();
+    }
+}
+
+function markGameCompleted(gameType) {
+    if (!state.completedGames.includes(gameType)) {
+        state.completedGames.push(gameType);
+        localStorage.setItem('completedGames', JSON.stringify(state.completedGames));
+        
+        // Update UI
+        const gameCard = document.getElementById(`game-${gameType}`);
+        if (gameCard) {
+            const btn = gameCard.querySelector('.btn-secondary');
+            const status = gameCard.querySelector('.game-status');
+            
+            btn.disabled = true;
+            btn.textContent = '✓ Completed';
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+            
+            status.innerHTML = '<span style="color: #27ae60; font-weight: 600;">✓ Unlocked!</span>';
+            
+            gameCard.style.opacity = '0.7';
+        }
+    }
+}
+
+function loadCompletedGames() {
+    const saved = localStorage.getItem('completedGames');
+    if (saved) {
+        state.completedGames = JSON.parse(saved);
+        state.completedGames.forEach(gameType => {
+            const gameCard = document.getElementById(`game-${gameType}`);
+            if (gameCard) {
+                const btn = gameCard.querySelector('.btn-secondary');
+                const status = gameCard.querySelector('.game-status');
+                
+                btn.disabled = true;
+                btn.textContent = '✓ Completed';
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+                
+                status.innerHTML = '<span style="color: #27ae60; font-weight: 600;">✓ Unlocked!</span>';
+                gameCard.style.opacity = '0.7';
+            }
+        });
     }
 }
 
@@ -534,11 +1179,16 @@ function checkMatch() {
             setTimeout(() => {
                 document.getElementById('memoryStatus').innerHTML = `
                     <div class="success-message">
-                        🎉 Congratulations! Choose which content to unlock!
+                        🎉 Congratulations!
                     </div>
-                    <div id="unlockChoices" style="margin-top: 20px;"></div>
                 `;
-                showUnlockChoices();
+                createConfetti();
+                unlockContent('coupons');
+                markGameCompleted('memory'); // Lock game
+                
+                setTimeout(() => {
+                    document.getElementById('quizModal').classList.remove('active');
+                }, 3000);
             }, 500);
         }
     } else {
@@ -927,7 +1577,11 @@ function selectUnlock(contentType) {
     
     // Create confetti effect
     createConfetti();
-    
+    unlockContent('birthday');
+    markGameCompleted('trivia'); // Lock game
+    setTimeout(() => {
+        document.getElementById('quizModal').classList.remove('active');
+    }, 3000);
     document.getElementById('unlockChoices').innerHTML = `
         <div class="success-message sparkle" style="margin-top: 20px;">
             ✨🎉 Content unlocked successfully! 🎉✨
@@ -1002,10 +1656,24 @@ function loadSavedProgress() {
 }
 
 function logout() {
-    if (confirm('Are you sure you want to logout? 💔')) {
-        localStorage.removeItem('loveWebsiteLoggedIn');
-        location.reload();
-    }
+    // Show romantic alert
+    alert('Seriusan nih kamu logout dari hidupku? 😢');
+    
+    // Second alert - no escape!
+    setTimeout(() => {
+        alert('NO YOU CAN\'T! ❌💔');
+        
+        setTimeout(() => {
+            alert('You are MINE! 💕👫');
+            
+            setTimeout(() => {
+                alert('Forever and always... You can\'t escape my love! 💖✨');
+            }, 500);
+        }, 500);
+    }, 500);
+    
+    // Never actually logout - return false
+    return false;
 }
 
 // Add shake animation to CSS dynamically

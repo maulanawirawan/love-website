@@ -24,7 +24,46 @@
     <!-- Password Screen -->
     <div id="passwordScreen" class="screen active">
         <div class="password-container">
-            <div class="lock-icon">🔒</div>
+            <div class="animated-character">
+                <svg id="characterSVG" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Body (oval) -->
+                    <ellipse id="body" cx="100" cy="130" rx="50" ry="65" fill="#FF6B9D"/>
+                    
+                    <!-- Head (circle) -->
+                    <circle id="head" cx="100" cy="60" r="45" fill="#FFB6C1"/>
+                    
+                    <!-- Blush -->
+                    <circle id="leftBlush" cx="75" cy="70" r="8" fill="#FF9EC4" opacity="0.6"/>
+                    <circle id="rightBlush" cx="125" cy="70" r="8" fill="#FF9EC4" opacity="0.6"/>
+                    
+                    <!-- Eyes -->
+                    <g id="eyes">
+                        <ellipse id="leftEye" cx="85" cy="55" rx="10" ry="12" fill="white"/>
+                        <ellipse id="leftPupil" cx="85" cy="57" rx="5" ry="6" fill="#2c3e50"/>
+                        <circle cx="83" cy="55" r="2" fill="white"/>
+                        
+                        <ellipse id="rightEye" cx="115" cy="55" rx="10" ry="12" fill="white"/>
+                        <ellipse id="rightPupil" cx="115" cy="57" rx="5" ry="6" fill="#2c3e50"/>
+                        <circle cx="113" cy="55" r="2" fill="white"/>
+                    </g>
+                    
+                    <!-- Mouth (happy) -->
+                    <path id="mouth" d="M 85 72 Q 100 82 115 72" stroke="#FF6B9D" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Arms -->
+                    <line id="leftArm" x1="52" y1="115" x2="35" y2="135" stroke="#FF6B9D" stroke-width="10" stroke-linecap="round"/>
+                    <line id="rightArm" x1="148" y1="115" x2="165" y2="135" stroke="#FF6B9D" stroke-width="10" stroke-linecap="round"/>
+                    
+                    <!-- Hands -->
+                    <circle id="leftHand" cx="35" cy="135" r="8" fill="#FFB6C1"/>
+                    <circle id="rightHand" cx="165" cy="135" r="8" fill="#FFB6C1"/>
+                    
+                    <!-- Heart on body -->
+                    <text x="100" y="140" font-size="20" text-anchor="middle">💕</text>
+                </svg>
+            </div>
+            
+            <!-- ✅ BAGIAN INI YANG HILANG, TAMBAHKAN! -->
             <h1 class="gradient-text">Hey Pretty, What's The Magic Word? 💖</h1>
             <p class="subtitle">Enter the password to unlock my heart</p>
             <input type="password" id="passwordInput" placeholder="Enter password..." maxlength="20">
@@ -143,25 +182,52 @@
                 <p class="section-subtitle">Complete these to unlock special content!</p>
                 
                 <div class="activities-grid">
-                    <div class="activity-card" data-quiz="crossword">
-                        <div class="activity-icon">🎯</div>
-                        <h3>Crossword Puzzle</h3>
-                        <p>Test your knowledge about us!</p>
+                    <div class="activity-card" data-quiz="maze" id="game-maze">
+                        <div class="activity-icon">🎮</div>
+                        <h3>Maze Game</h3>
+                        <p>Help us find each other!</p>
                         <button class="btn-secondary">Start Game</button>
+                        <div class="game-status"></div>
                     </div>
 
-                    <div class="activity-card" data-quiz="trivia">
+                    <div class="activity-card" data-quiz="mathpuzzle" id="game-mathpuzzle">
+                        <div class="activity-icon">🧮</div>
+                        <h3>Math Love Puzzle</h3>
+                        <p>Solve equations to reveal my message!</p>
+                        <button class="btn-secondary">Start Puzzle</button>
+                        <div class="game-status"></div>
+                    </div>
+
+                    <div class="activity-card" data-quiz="cipher" id="game-cipher">
+                        <div class="activity-icon">🔐</div>
+                        <h3>Secret Message</h3>
+                        <p>Decode my hidden love letter!</p>
+                        <button class="btn-secondary">Decode Now</button>
+                        <div class="game-status"></div>
+                    </div>
+                    
+                    <div class="activity-card" data-quiz="memory" id="game-memory">
+                        <div class="activity-icon">🎴</div>
+                        <h3>Memory Match</h3>
+                        <p>Match the heart pairs!</p>
+                        <button class="btn-secondary">Play Game</button>
+                        <div class="game-status"></div>
+                    </div>
+                    
+                    <div class="activity-card" data-quiz="trivia" id="game-trivia">
                         <div class="activity-icon">❓</div>
                         <h3>Love Trivia</h3>
-                        <p>Answer questions about our story</p>
+                        <p>Answer questions about us!</p>
                         <button class="btn-secondary">Start Quiz</button>
+                        <div class="game-status"></div>
                     </div>
-
-                    <div class="activity-card" data-quiz="memory">
-                        <div class="activity-icon">🎴</div>
-                        <h3>Memory Game</h3>
-                        <p>Match the cards!</p>
-                        <button class="btn-secondary">Play Game</button>
+                    
+                    <div class="activity-card" data-quiz="wordsearch" id="game-wordsearch">
+                        <div class="activity-icon">🔍</div>
+                        <h3>Word Search</h3>
+                        <p>Find the love words!</p>
+                        <button class="btn-secondary">Start Search</button>
+                        <div class="game-status"></div>
                     </div>
                 </div>
             </div>
